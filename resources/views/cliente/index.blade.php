@@ -4,7 +4,7 @@
 
 @section("formulario")
 	<h1>Cadastro de Clientes</h1>
-	<form action="/cliente" method="POST" class="row">
+	<form action="/cliente" method="POST" class="row" onsubmit="carregaDados();">
 		<div class="form-group col-5">
 			<label for="nome">Nome:</label>
 			<input type="text" name="nome" class=
@@ -13,8 +13,9 @@
 		</div>
 		<div class="form-group col-5">
 			<label for="cpf">CPF:</label>
-			<input type="text" id="cpf" class=
+			<input type="text" id="cpf_mask" class=
 			"form-control" value="{{ $cliente->cpf }}" />
+			<input type="hidden" id="cpf" name="cpf" value="{{ $cliente->cpf }}">
 		
 		</div>
 		<div class="form-group col-2">
@@ -36,7 +37,14 @@
 @endsection
 
 @section("tabela")
-	<table class="table table-striped" style="margin-top: 50px;">
+	<div class="row" style="margin-top: 50px;">
+		<div class="col-12 form-group">
+		<input type="text" id="q" placeholder="Pesquisar por nome..."
+		class="form-control" onkeyup="buscar($(this).val());"/>
+		</div>
+	
+	</div>
+	<table id="tabClientes" class="table table-striped" style="margin-top: 10px;">
 		<colgroup>
 			<col width="200">
 			<col width="200">
@@ -55,8 +63,8 @@
 	<tbody>
 		@foreach ($clientes as $cliente)
 		<tr>
-			<td>{{$cliente->nome}}</td>
-			<td>{{$cliente->cpf}}</td>
+			<td class="td_nome">{{$cliente->nome}}</td>
+			<td class="td_cpf">{{$cliente->cpf}}</td>
 			<td>
 				<a href="/cliente/{{$cliente->id }}/edit"
 				class="btn btn-warning">
@@ -89,9 +97,42 @@
 @endsection
 
 <script>
+
+	function buscar(q) {
+			
+		q = q.toLowerCase();
+			
+		$("#tabClientes tbody tr").each(function(){
+				
+			var mostrar = true;
+			
+			var nome = $("td.td_nome", this).html();
+			nome = nome.toLowerCase();
+			
+			var cpf = $("td.td_cpf", this).cleanVal();
+			
+			mostrar = nome.includes(q) || cpf.includes(q);
+			
+			if (mostrar){
+				$(this).show();
+				
+			}else{
+				$(this).hide();
+			}
+			
+		});
+	}
+
+	function carregaDados(){
+		$("#cpf").val($("#cpf_mask").cleanVal());
+	}
+
 	document.addEventListener("DOMContentLoaded",function(){
-		$("#cpf").mask("000.000.000-00",{"placeholder":
+		$("#cpf_mask").mask("000.000.000-00",{"placeholder":
 		"___.___.___-__"});
+		
+		$(".td_cpf").mask("000.000.000-00");
+		
 	});
 	
 </script>
